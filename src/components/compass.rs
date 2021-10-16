@@ -1,6 +1,6 @@
 use crate::game_logic::map::{Direction, Location};
 use yew::prelude::*;
-// use yew::services::ConsoleService;
+use yew::services::ConsoleService;
 
 pub enum Msg {
     GoTo(Direction),
@@ -46,7 +46,7 @@ impl Component for Compass {
                 self.props.on_go_to.emit(self.props.east.unwrap());
                 true
             },
-            _ => false,
+            _ => true,
         }
     }
 

@@ -1,6 +1,8 @@
 use maplit::hashmap;
 use std::collections::HashMap;
 
+use super::item::{Item, Objects};
+
 #[derive(Debug, Clone)]
 pub struct Map {
     pub rooms: Vec<Room>,
@@ -15,6 +17,20 @@ impl Map {
                     name: String::from("Game room"),
                     description: String::from("There is a computer"),
                     exit: hashmap! { Direction::South => Location::Kitchen },
+                    items: vec![
+                        Item {
+                            id: Objects::Table,
+                            name: String::from("Table"),
+                            description: String::from("It's an old table"),
+                            can_picked_up: false,
+                        },
+                        Item {
+                            id: Objects::Key,
+                            name: String::from("Key"),
+                            description: String::from("It's a key"),
+                            can_picked_up: true,
+                        },
+                    ],
                 },
                 Room {
                     id: Location::Kitchen,
@@ -23,6 +39,7 @@ impl Map {
                         "There is a table with a key on it. A door leading north.",
                     ),
                     exit: hashmap! { Direction::North => Location::GameRoom },
+                    items: vec![],
                 },
             ],
         }
@@ -49,6 +66,7 @@ pub struct Room {
     pub name: String,
     pub description: String,
     pub exit: HashMap<Direction, Location>,
+    pub items: Vec<Item>,
 }
 
 impl Room {

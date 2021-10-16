@@ -11,69 +11,68 @@ pub enum Msg {
     GoTo(Location),
 }
 
-#[derive(Clone, Properties, Debug)]
-pub struct Props {
+pub struct Index {
     map: Map,
     current_location: Location,
-}
-
-
-pub struct Index {
-    props: Props,
-    link: ComponentLink<Self>,
 }
 
 impl Component for Index {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            props: Props {
-                map: Map::init(),
-                current_location: Location::Kitchen,
-            },
-            link,
+            map: Map::init(),
+            current_location: Location::Kitchen,
         }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::GoTo(location) => {
-                self.props.current_location = location;
+                self.current_location = location;
                 true
             },
         }
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        false
-    }
+    // fn changed(&mut self, ctx: &Context<Self>) -> bool {
+    //     false
+    // }
 
-    fn view(&self) -> Html {
-        let room = self.props.map.current_location(&self.props.current_location);
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let room = self.map.current_location(&self.current_location);
 
         let description_props = yew::props!(Description::Properties {
             room_name: room.name,
             room_description: room.description,
         });
 
-        let compass_props = yew::props!(Compass::Properties {
+        let _compass_props = yew::props!(Compass::Properties {
             north: room.exit.get(&Direction::North).copied(),
             south: room.exit.get(&Direction::South).copied(),
             east: room.exit.get(&Direction::East).copied(),
             west: room.exit.get(&Direction::West).copied(),
-            on_go_to: self.link.callback(Msg::GoTo),
+            on_go_to: ctx.link().callback(Msg::GoTo),
         });
 
         html! {
             <div class="container-fluid p-5">
                 <div class="row">
                     <div class="col-8">
-                        <Description with description_props />
+                        <Description
+                            room_name={description_props.room_name}
+                            room_description={description_props.room_description}    
+                        />
                     </div>
                     <div class="col-4">
-                        <Compass with compass_props />
+                        <Compass 
+                        north={room.exit.get(&Direction::North).copied()}
+                        south={room.exit.get(&Direction::South).copied()}
+                        east={room.exit.get(&Direction::East).copied()}
+                        west={room.exit.get(&Direction::West).copied()}
+                        on_go_to={ctx.link().callback(Msg::GoTo)}
+                        />
                     </div>
                 </div>
             </div>

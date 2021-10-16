@@ -1,12 +1,11 @@
 use crate::game_logic::map::{Direction, Location};
-use yew::prelude::*;
-use yew::services::ConsoleService;
+use yew::{html, Component, Context, Html, Properties, Callback};
 
 pub enum Msg {
     GoTo(Direction),
 }
 
-#[derive(Clone, Properties, Debug)]
+#[derive(Clone, Properties, Debug, PartialEq)]
 pub struct Props {
     pub north: Option<Location>,
     pub south: Option<Location>,
@@ -16,54 +15,64 @@ pub struct Props {
 }
 
 pub struct Compass {
-    props: Props,
-    link: ComponentLink<Self>,
+    north: Option<Location>,
+    south: Option<Location>,
+    east: Option<Location>,
+    west: Option<Location>,
 }
 
 impl Component for Compass {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { props, link }
+    fn create(ctx: &Context<Self>) -> Self {
+        Self { 
+            north : ctx.props().north,
+            south : ctx.props().south,
+            west : ctx.props().west,
+            east : ctx.props().east,
+        }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::GoTo(direction) if direction == Direction::North => {
-                self.props.on_go_to.emit(self.props.north.unwrap());
+                ctx.props().on_go_to.emit(self.north.unwrap());
                 true
             },
             Msg::GoTo(direction) if direction == Direction::South => {
-                self.props.on_go_to.emit(self.props.south.unwrap());
+                ctx.props().on_go_to.emit(self.south.unwrap());
                 true
             },
             Msg::GoTo(direction) if direction == Direction::West => {
-                self.props.on_go_to.emit(self.props.west.unwrap());
+                ctx.props().on_go_to.emit(self.west.unwrap());
                 true
             },
             Msg::GoTo(direction) if direction == Direction::East => {
-                self.props.on_go_to.emit(self.props.east.unwrap());
+                ctx.props().on_go_to.emit(self.east.unwrap());
                 true
             },
             _ => true,
         }
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props = props;
+    fn changed(&mut self, ctx: &Context<Self>) -> bool {
+        self.north = ctx.props().north;
+        self.south = ctx.props().south;
+        self.west = ctx.props().west;
+        self.east = ctx.props().east;
         true
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div class="container">
                 <div class="row">
                     <div class="col-4"></div>
                     <div class="col-4">
                         <button class="btn btn-outline-primary compass-button"
-                                onclick=self.link.callback(|_| Msg::GoTo(Direction::North))
-                                disabled=self.props.north.is_none()> { "North" } 
+                                onclick={ctx.link().callback(|_| Msg::GoTo(Direction::North))}
+                                disabled={self.north.is_none()}> { "North" } 
                         </button>
                     </div>
                     <div class="col-4"></div>
@@ -71,15 +80,15 @@ impl Component for Compass {
                 <div class="row">
                     <div class="col-4">
                         <button class="btn btn-outline-primary compass-button"
-                                onclick=self.link.callback(|_| Msg::GoTo(Direction::West)) 
-                                disabled=self.props.west.is_none()> { "West" }
+                                onclick={ctx.link().callback(|_| Msg::GoTo(Direction::West))} 
+                                disabled={self.west.is_none()}> { "West" }
                         </button>
                     </div>
                     <div class="col-4"></div>
                     <div class="col-4">
                         <button class="btn btn-outline-primary compass-button"
-                                onclick=self.link.callback(|_| Msg::GoTo(Direction::East)) 
-                                disabled=self.props.east.is_none()> { "East" } 
+                                onclick={ctx.link().callback(|_| Msg::GoTo(Direction::East)) }
+                                disabled={self.east.is_none()}> { "East" } 
                         </button>
                     </div>
                 </div>
@@ -87,8 +96,8 @@ impl Component for Compass {
                     <div class="col-4"></div>
                     <div class="col-4">
                         <button class="btn btn-outline-primary compass-button"
-                                onclick=self.link.callback(|_| Msg::GoTo(Direction::South))
-                                disabled=self.props.south.is_none()> { "South" } 
+                                onclick={ctx.link().callback(|_| Msg::GoTo(Direction::South))}
+                                disabled={self.south.is_none()}> { "South" } 
                         </button>
                     </div>
                     <div class="col-4"></div>
@@ -96,8 +105,4 @@ impl Component for Compass {
             </div>
         }
     }
-
-    fn rendered(&mut self, _first_render: bool) {}
-
-    fn destroy(&mut self) {}
 }

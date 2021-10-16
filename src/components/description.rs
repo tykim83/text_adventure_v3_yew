@@ -3,39 +3,43 @@ use yew::prelude::*;
 
 pub enum Msg {}
 
-#[derive(Clone, Properties)]
+#[derive(Clone, Properties, PartialEq)]
 pub struct Props {
     pub room_name: String,
     pub room_description: String,
 }
 
 pub struct Description {
-    props: Props,
-    _link: ComponentLink<Self>,
+    room_name: String,
+    room_description: String,
 }
 
 impl Component for Description {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, _link: ComponentLink<Self>) -> Self {
-        Self { props, _link }
+    fn create(ctx: &Context<Self>) -> Self {
+        Self { 
+            room_name: ctx.props().room_name.clone(),
+            room_description: ctx.props().room_description.clone(),
+         }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
         true
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props = props;
+    fn changed(&mut self, ctx: &Context<Self>) -> bool {
+        self.room_name = ctx.props().room_name.clone();
+        self.room_description = ctx.props().room_description.clone();
         true
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
             <>
-                <div>{ &self.props.room_name }</div>
-                <div>{ &self.props.room_description }</div>
+                <div>{ &self.room_name }</div>
+                <div>{ &self.room_description }</div>
             </>
         }
     }
